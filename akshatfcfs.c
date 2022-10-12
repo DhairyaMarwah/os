@@ -1,89 +1,58 @@
-#include <stdio.h>
+#include<stdio.h>
 
-struct process{
-  int pr,at,bt;
-};
-
+typedef struct process
+{
+    int id;
+    int arr_time;
+    int burst_time;
+} process;
 
 int main()
 {
+    process p[10];
 
-  int n;
-  struct process temp;
+    int n;
+    printf("Enter total number of processes: ");
+    scanf("%d",&n);
 
-  //total process
-  printf("Enter the total no. of process: ");
-  scanf("%d",&n);
-
-  //array of structures and input
-  struct process p[n];
-  for(int i=0 ; i<n ; i++)
-  {
-    printf("Enter the process, arrival time and burst time of process: ");
-
-    scanf("%d %d %d",&p[i].pr,&p[i].at,&p[i].bt);
-  }
-
-  //display of array of structures
-  // for(int i=0 ; i<n ; i++)
-  // {
-  //   printf("%d . %d %d \n",p[i].pr,p[i].at,p[i].bt);
-  // }
-
-  // sorting on basis of at
-  for(int i=0 ; i<n ; i++)
-  {
-    for(int j=i+1 ; j<n ; j++)
+    for(int i=0; i<n ; i++)
     {
-      if(p[i].at>p[j].at)
-      {
-        temp=p[i];
-        p[i]=p[j];
-        p[j]=temp;
-      }
+        printf("Enter process id, arrival time and burst time: ");
+        scanf("%d%d%d",&p[i].id, &p[i].arr_time, &p[i].burst_time);
     }
-  }
 
-  //calculating start time and completion time
-  int i=0;
-  int st[n],ct[n];
-  st[i]=p[i].at;
-  ct[i]=p[i].bt;
+    //sorting on the basis of arrival time
 
-  for(i=1 ; i<n ; i++)
-  {
-    if(ct[i-1]>=p[i].at)
+    for(int i=1;i<n;i++)
     {
-      st[i]=ct[i-1];
-      ct[i]=p[i].bt + ct[i-1];
+        for(int j=0; j<n-i;j++)
+        {
+            if(p[j].arr_time > p[j+1].arr_time)
+            {
+                process temp = p[j];
+                p[j] = p[j+1];
+                p[j+1] = temp;
+            }
+        }
     }
-    else
+
+    // creating array for waiting time and turn around time
+    int wait_time[n], tat[n], comp_time[n];
+
+    wait_time[0] = 0; // for the first process
+    comp_time[0] = p[0].burst_time;
+    tat[0] = comp_time[0];
+
+    for(int i=1;i<n;i++)
     {
-      st[i]=p[i].at;
-      ct[i]=p[i].bt+st[i];
+        wait_time[i] = comp_time[i-1] - p[i].arr_time;
+        comp_time[i] = comp_time[i-1]+ p[i].burst_time;
+        tat[i] = comp_time[i] - p[i].arr_time;
     }
-  }
 
-  printf("\n\nThe process, arrival time, burst time, start time and completion time are :\n");
-  for(i=0 ; i<n ; i++)
-  {
-    printf("P%d %d %d %d %d\n",p[i].pr,p[i].at,p[i].bt,st[i],ct[i] );
-  }
-
-  //to calculate avg RT,TAT and WT
-  float totRt=0,totTat=0,totWt=0;
-  int btt=0;
-  for(i=0 ; i<n ; i++)
-  {
-    totRt+=st[i]-p[i].at;
-    totTat+=ct[i]-p[i].at;
-    btt+=p[i].bt;
-  }
-  totWt=totTat-btt;
-
-  printf("Average resonse time: %f\n",totRt/n);
-  printf("Average through put time: %f\n",totTat/n);
-  printf("Average waiting time: %f\n",totWt/n);
-
-return 0;
+    printf("Process id\tarrival time\tburst time\twaiting time\tcompletion time\tturn around time\n");
+    for(int i=0;i<n;i++)
+    {
+        printf("%d\t\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n",p[i].id,p[i].arr_time,p[i].burst_time,wait_time[i],comp_time[i],tat[i]);
+    }
 }
